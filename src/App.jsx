@@ -51,6 +51,14 @@ const App = () => {
             setDims({ w: window.innerWidth, h: window.innerHeight });
 
             if (canvasRef.current) {
+                // Calculate old dimensions
+                const oldW = canvasRef.current.width / dpr;
+                const oldH = canvasRef.current.height / dpr;
+
+                if (oldW > 0 && oldH > 0 && particlesRef.current.length > 0) {
+                    particlesRef.current.forEach(p => p.relocate(window.innerWidth, window.innerHeight, oldW, oldH));
+                }
+
                 // Set logic size (CSS pixels)
                 canvasRef.current.style.width = `${window.innerWidth}px`;
                 canvasRef.current.style.height = `${window.innerHeight}px`;

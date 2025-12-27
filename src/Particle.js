@@ -74,4 +74,14 @@ export class Particle {
             }
         }
     }
+    relocate(w, h, oldW, oldH) {
+        if (oldW === 0 || oldH === 0) return; // Prevent division by zero
+
+        // Scale position based on new dimensions
+        const scaleX = w / oldW;
+        const scaleY = h / oldH;
+
+        this.x *= scaleX;
+        this.y *= scaleY;
+    }
 }
