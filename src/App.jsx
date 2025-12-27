@@ -16,6 +16,10 @@ const App = () => {
     });
     const [dims, setDims] = useState({ w: window.innerWidth, h: window.innerHeight });
 
+    // Store previous dimensions to calculate scale factor
+    // Initialize with current window size
+    const prevDimsRef = useRef({ w: window.innerWidth, h: window.innerHeight });
+
     // Initialize & Manage Particles (Non-destructive)
     useEffect(() => {
         const targetCount = Math.floor((params.density / 100) * 150) + 20;
@@ -48,29 +52,37 @@ const App = () => {
     useEffect(() => {
         const handleResize = () => {
             const dpr = window.devicePixelRatio || 1;
-            setDims({ w: window.innerWidth, h: window.innerHeight });
+            const newW = window.innerWidth;
+            const newH = window.innerHeight;
+
+            // Get last known legitimate dimensions
+            const oldW = prevDimsRef.current.w;
+            const oldH = prevDimsRef.current.h;
+
+            // Update ref immediately for next time
+            prevDimsRef.current = { w: newW, h: newH };
 
             if (canvasRef.current) {
-                // Calculate old dimensions
-                const oldW = canvasRef.current.width / dpr;
-                const oldH = canvasRef.current.height / dpr;
-
+                // Relocate particles based on EXPLICIT old vs new dimensions
+                // This decoupling prevents race conditions with DOM state
                 if (oldW > 0 && oldH > 0 && particlesRef.current.length > 0) {
-                    particlesRef.current.forEach(p => p.relocate(window.innerWidth, window.innerHeight, oldW, oldH));
+                    particlesRef.current.forEach(p => p.relocate(newW, newH, oldW, oldH));
                 }
 
                 // Set logic size (CSS pixels)
-                canvasRef.current.style.width = `${window.innerWidth}px`;
-                canvasRef.current.style.height = `${window.innerHeight}px`;
+                canvasRef.current.style.width = `${newW}px`;
+                canvasRef.current.style.height = `${newH}px`;
 
                 // Set physical size (Actual pixels)
-                canvasRef.current.width = window.innerWidth * dpr;
-                canvasRef.current.height = window.innerHeight * dpr;
+                canvasRef.current.width = newW * dpr;
+                canvasRef.current.height = newH * dpr;
 
                 // Scale context to match
                 const ctx = canvasRef.current.getContext('2d');
                 ctx.scale(dpr, dpr);
             }
+
+            setDims({ w: newW, h: newH });
         };
         handleResize(); // Call once on mount
 
@@ -183,8 +195,6 @@ const App = () => {
             {/* The Canvas */}
             <canvas
                 ref={canvasRef}
-                width={dims.w}
-                height={dims.h}
                 className="absolute top-0 left-0 w-full h-full"
             />
 
