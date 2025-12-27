@@ -2,7 +2,7 @@
 
 A high-performance, interactive generative art sandbox built with **React** and **Vite**.
 
-![GeoFlux Preview](/screenshot.png)
+[**🚀 Live Demo**](https://scuba3198.github.io/Geoflux/)
 
 ## Features
 
