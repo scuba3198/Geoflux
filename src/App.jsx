@@ -199,7 +199,10 @@ const App = () => {
             />
 
             {/* Header / Brand */}
-            <div className="absolute top-6 left-6 pointer-events-none select-none z-10">
+            <div
+                onClick={() => window.location.reload()}
+                className="absolute top-6 left-6 select-none z-10 cursor-pointer active:scale-95 transition-transform"
+            >
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 opacity-80">
                     GEOFLUX
                 </h1>
