@@ -10,6 +10,7 @@ html {
     background: #000;
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100%;
 }
 
 canvas {

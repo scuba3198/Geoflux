@@ -191,7 +191,7 @@ const App = () => {
     const toggleControls = () => setShowControls(!showControls);
 
     return (
-        <div className="relative w-full h-screen overflow-hidden bg-black">
+        <div className="relative w-full h-screen h-[100dvh] overflow-hidden bg-black">
             {/* The Canvas */}
             <canvas
                 ref={canvasRef}
@@ -207,7 +207,7 @@ const App = () => {
             </div>
 
             {/* Credit - Subtle watermark in bottom left */}
-            <div className="absolute bottom-6 left-6 pointer-events-none select-none z-10">
+            <div className="absolute left-6 pointer-events-none select-none z-10 bottom-[max(1.5rem,env(safe-area-inset-bottom))]">
                 <p className="text-[10px] text-white/80 tracking-[0.2em] font-medium uppercase drop-shadow-md">
                     by Mumukshu D.C
                 </p>
@@ -217,7 +217,7 @@ const App = () => {
             {!showControls && (
                 <button
                     onClick={toggleControls}
-                    className="absolute bottom-6 right-6 p-3 rounded-full glass-panel hover:bg-white/10 transition-all z-20 text-white"
+                    className="absolute right-6 p-3 rounded-full glass-panel hover:bg-white/10 transition-all z-20 text-white bottom-[max(1.5rem,env(safe-area-inset-bottom))]"
                 >
                     <Settings />
                 </button>
