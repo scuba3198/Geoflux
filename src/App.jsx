@@ -200,10 +200,10 @@ const App = () => {
 
             {/* Header / Brand */}
             <div className="absolute top-6 left-6 pointer-events-none select-none z-10">
-                <h1 className="text-3xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 opacity-80">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 opacity-80">
                     GEOFLUX
                 </h1>
-                <p className="text-xs text-gray-400 tracking-widest uppercase mt-1">Generative Sandbox</p>
+                <p className="text-[10px] sm:text-xs text-gray-400 tracking-widest uppercase mt-1">Generative Sandbox</p>
             </div>
 
             {/* Credit - Subtle watermark in bottom left */}
@@ -224,7 +224,7 @@ const App = () => {
             )}
 
             {/* Control Panel */}
-            <div className={`absolute top-0 right-0 h-full w-80 glass-panel p-6 transform transition-transform duration-300 ease-in-out z-20 flex flex-col ${showControls ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div className={`absolute top-0 right-0 h-full w-full sm:w-80 glass-panel p-6 transform transition-transform duration-300 ease-in-out z-20 flex flex-col ${showControls ? 'translate-x-0' : 'translate-x-full'}`}>
 
                 <div className="flex justify-between items-center mb-8">
                     <h2 className="text-lg font-semibold text-white flex items-center gap-2">
