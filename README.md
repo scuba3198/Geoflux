@@ -45,6 +45,20 @@ npm run dev
 npm run build
 ```
 
+### Running Tests
+
+Run end-to-end and accessibility tests:
+
+```bash
+npx playwright test
+```
+
+Run tests with UI mode:
+
+```bash
+npx playwright test --ui
+```
+
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.

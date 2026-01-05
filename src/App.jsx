@@ -193,13 +193,16 @@ const App = () => {
     return (
         <div className="relative w-full h-screen h-[100svh] overflow-hidden bg-black">
             {/* The Canvas */}
-            <canvas
-                ref={canvasRef}
-                className="absolute top-0 left-0 w-full h-full"
-            />
+            {/* The Canvas */}
+            <main className="absolute top-0 left-0 w-full h-full">
+                <canvas
+                    ref={canvasRef}
+                    className="block w-full h-full"
+                />
+            </main>
 
             {/* Header / Brand */}
-            <div
+            <header
                 onClick={() => window.location.reload()}
                 className="absolute top-6 left-6 select-none z-10 cursor-pointer active:scale-95 transition-transform"
             >
@@ -207,19 +210,20 @@ const App = () => {
                     GEOFLUX
                 </h1>
                 <p className="text-[10px] sm:text-xs text-gray-400 tracking-widest uppercase mt-1">Generative Sandbox</p>
-            </div>
+            </header>
 
             {/* Credit - Subtle watermark in bottom left */}
-            <div className="absolute left-6 pointer-events-none select-none z-10 bottom-[max(2rem,env(safe-area-inset-bottom))]">
+            <footer className="absolute left-6 pointer-events-none select-none z-10 bottom-[max(2rem,env(safe-area-inset-bottom))]">
                 <p className="text-[10px] text-white/80 tracking-[0.2em] font-medium uppercase drop-shadow-md">
                     by Mumukshu D.C
                 </p>
-            </div>
+            </footer>
 
             {/* Toggle Button (Visible when controls hidden) */}
             {!showControls && (
                 <button
                     onClick={toggleControls}
+                    aria-label="Open controls"
                     className="absolute right-6 p-3 rounded-full glass-panel hover:bg-white/10 transition-all z-20 text-white bottom-[max(2rem,env(safe-area-inset-bottom))]"
                 >
                     <Settings />
@@ -227,13 +231,13 @@ const App = () => {
             )}
 
             {/* Control Panel */}
-            <div className={`absolute top-0 right-0 h-full w-full sm:w-80 glass-panel p-6 transform transition-transform duration-300 ease-in-out z-20 flex flex-col ${showControls ? 'translate-x-0' : 'translate-x-full'}`}>
+            <aside className={`absolute top-0 right-0 h-full w-full sm:w-80 glass-panel p-6 transform transition-transform duration-300 ease-in-out z-20 flex flex-col ${showControls ? 'translate-x-0' : 'translate-x-full'}`}>
 
                 <div className="flex justify-between items-center mb-8">
                     <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                         <Settings size={20} /> Parameters
                     </h2>
-                    <button onClick={toggleControls} className="text-gray-400 hover:text-white transition-colors">
+                    <button onClick={toggleControls} aria-label="Close controls" className="text-gray-400 hover:text-white transition-colors">
                         <X size={20} />
                     </button>
                 </div>
@@ -244,10 +248,11 @@ const App = () => {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <label className="text-cyan-300">Density</label>
+                                <label htmlFor="density-input" className="text-cyan-300">Density</label>
                                 <span className="text-gray-400">{params.density}%</span>
                             </div>
                             <input
+                                id="density-input"
                                 type="range" min="10" max="150" step="1"
                                 value={params.density}
                                 onChange={(e) => handleParamChange('density', e.target.value)}
@@ -257,10 +262,11 @@ const App = () => {
 
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <label className="text-purple-300">Flow Speed</label>
+                                <label htmlFor="speed-input" className="text-purple-300">Flow Speed</label>
                                 <span className="text-gray-400">{params.speed}%</span>
                             </div>
                             <input
+                                id="speed-input"
                                 type="range" min="0" max="100" step="1"
                                 value={params.speed}
                                 onChange={(e) => handleParamChange('speed', e.target.value)}
@@ -269,10 +275,11 @@ const App = () => {
 
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <label className="text-green-300">Gravity</label>
+                                <label htmlFor="gravity-input" className="text-green-300">Gravity</label>
                                 <span className="text-gray-400">{params.gravity > 10 ? 'Falling' : 'Floating'}</span>
                             </div>
                             <input
+                                id="gravity-input"
                                 type="range" min="0" max="100" step="1"
                                 value={params.gravity}
                                 onChange={(e) => handleParamChange('gravity', e.target.value)}
@@ -281,10 +288,11 @@ const App = () => {
 
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <label className="text-pink-300">Color Cycle</label>
+                                <label htmlFor="color-speed-input" className="text-pink-300">Color Cycle</label>
                                 <span className="text-gray-400">{params.colorSpeed}hz</span>
                             </div>
                             <input
+                                id="color-speed-input"
                                 type="range" min="0" max="100" step="1"
                                 value={params.colorSpeed}
                                 onChange={(e) => handleParamChange('colorSpeed', e.target.value)}
@@ -293,13 +301,14 @@ const App = () => {
 
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <label className="text-yellow-300">Base Hue</label>
+                                <label htmlFor="base-hue-input" className="text-yellow-300">Base Hue</label>
                                 <div
                                     className="w-4 h-4 rounded-full"
                                     style={{ backgroundColor: `hsl(${params.baseHue}, 70%, 50%)` }}
                                 ></div>
                             </div>
                             <input
+                                id="base-hue-input"
                                 type="range" min="0" max="360" step="1"
                                 value={params.baseHue}
                                 onChange={(e) => handleParamChange('baseHue', e.target.value)}
@@ -309,10 +318,11 @@ const App = () => {
 
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <label className="text-blue-300">Link Range</label>
+                                <label htmlFor="range-input" className="text-blue-300">Link Range</label>
                                 <span className="text-gray-400">{params.range}px</span>
                             </div>
                             <input
+                                id="range-input"
                                 type="range" min="20" max="100" step="1"
                                 value={params.range}
                                 onChange={(e) => handleParamChange('range', e.target.value)}
@@ -332,11 +342,11 @@ const App = () => {
                     </button>
 
                     <p className="text-center text-xs text-gray-500 mt-4">
-                        Tap 'Download' to save the current frame.
+                        Tap &apos;Download&apos; to save the current frame.
                     </p>
                 </div>
-            </div>
-        </div>
+            </aside>
+        </div >
     );
 };
 
