@@ -194,7 +194,7 @@ const App = () => {
         <div className="relative w-full h-screen h-[100svh] overflow-hidden bg-black">
             {/* The Canvas */}
             {/* The Canvas */}
-            <main className="absolute top-0 left-0 w-full h-full">
+            <main className="absolute top-0 left-0 w-full h-full pointer-events-none">
                 <canvas
                     ref={canvasRef}
                     className="block w-full h-full"
