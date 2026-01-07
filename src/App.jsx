@@ -5,7 +5,7 @@ import { Particle } from './Particle';
 const App = () => {
     const canvasRef = useRef(null);
     const [particles, setParticles] = useState([]);
-    const [showControls, setShowControls] = useState(true);
+    const [showControls, setShowControls] = useState(false);
     const [params, setParams] = useState({
         speed: 50,      // 0 - 100
         gravity: 0,     // 0 - 100
