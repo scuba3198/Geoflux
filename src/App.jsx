@@ -213,7 +213,7 @@ const App = () => {
             </header>
 
             {/* Credit - Subtle watermark in bottom left */}
-            <footer className="absolute left-6 pointer-events-none select-none z-10 bottom-[max(4rem,env(safe-area-inset-bottom))] sm:bottom-[max(2rem,env(safe-area-inset-bottom))]">
+            <footer className="absolute left-6 pointer-events-none select-none z-10 bottom-[max(6rem,calc(env(safe-area-inset-bottom)+2rem))] sm:bottom-[max(2rem,env(safe-area-inset-bottom))]">
                 <p className="text-[10px] text-white/80 tracking-[0.2em] font-medium uppercase drop-shadow-md">
                     by Mumukshu D.C
                 </p>
