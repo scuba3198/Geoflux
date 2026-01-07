@@ -20,13 +20,15 @@ test.describe('Geoflux E2E', () => {
     });
 
     test('should toggle the controls panel', async ({ page }) => {
-        // Initial state: Controls are visible
         const settingsPanel = page.getByText('Parameters');
-        await expect(settingsPanel).toBeVisible();
+        const openButton = page.getByRole('button', { name: 'Open controls' });
+        const closeButton = page.getByRole('button', { name: 'Close controls' });
 
-        // Use specific selector for Close (X) button
-        // It is a button containing an SVG with class 'lucide-x' (or similar structure from component)
-        const closeButton = page.locator('button').filter({ has: page.locator('svg.lucide-x') });
+        // Initial state: Controls are hidden
+        await expect(openButton).toBeVisible();
+        await openButton.click();
+
+        await expect(settingsPanel).toBeVisible();
         await expect(closeButton).toBeVisible();
         await closeButton.click();
 
@@ -35,9 +37,6 @@ test.describe('Geoflux E2E', () => {
 
         // Selector for Open (Settings) button
         // It is a button containing an SVG with class 'lucide-settings'
-        const openButton = page.locator('button').filter({ has: page.locator('svg.lucide-settings') });
-
-        // Verify open button appears
         await expect(openButton).toBeVisible({ timeout: 10000 });
 
         // Click Open button
@@ -51,6 +50,12 @@ test.describe('Geoflux E2E', () => {
     });
 
     test('should allow adjusting parameters', async ({ page }) => {
+        const openButton = page.getByRole('button', { name: 'Open controls' });
+        await expect(openButton).toBeVisible();
+        await openButton.click();
+
+        await expect(page.getByText('Parameters')).toBeVisible();
+
         // Check if Density slider exists
         const densityInput = page.locator('input[type="range"]').first(); // Or specific one
         await expect(densityInput).toBeVisible();
