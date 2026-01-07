@@ -213,7 +213,7 @@ const App = () => {
             </header>
 
             {/* Credit - Subtle watermark in bottom left */}
-            <footer className="absolute left-6 pointer-events-none select-none z-10 bottom-[max(2rem,env(safe-area-inset-bottom))]">
+            <footer className="absolute left-6 pointer-events-none select-none z-10 bottom-[max(4rem,env(safe-area-inset-bottom))] sm:bottom-[max(2rem,env(safe-area-inset-bottom))]">
                 <p className="text-[10px] text-white/80 tracking-[0.2em] font-medium uppercase drop-shadow-md">
                     by Mumukshu D.C
                 </p>
@@ -224,7 +224,7 @@ const App = () => {
                 <button
                     onClick={toggleControls}
                     aria-label="Open controls"
-                    className="absolute right-6 p-3 rounded-full glass-panel hover:bg-white/10 transition-all z-30 text-white bottom-[max(2rem,env(safe-area-inset-bottom))]"
+                    className="absolute right-6 p-3 rounded-full glass-panel hover:bg-white/10 transition-all z-30 text-white top-[max(1.5rem,env(safe-area-inset-top))] sm:top-auto sm:bottom-[max(2rem,env(safe-area-inset-bottom))]"
                 >
                     <Settings />
                 </button>
@@ -353,3 +353,4 @@ const App = () => {
 };
 
 export default App;
+
