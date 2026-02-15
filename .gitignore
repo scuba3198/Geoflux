@@ -118,3 +118,8 @@ dist
 # Playwright
 playwright-report/
 test-results/
+
+# Antigravity/Cursor/Claude noise
+.claude/
+.codex/
+.cursor/
