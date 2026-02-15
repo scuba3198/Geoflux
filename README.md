@@ -10,7 +10,7 @@ A high-performance, interactive generative art sandbox built with **React** and 
 -   **Customizable Physics**: Adjust gravity, density, flow speed, and connection range.
 -   **High DPI Support**: Crystal clear rendering on Retina and 4K displays.
 -   **Wallpaper Generator**: Export your creations as high-resolution PNGs.
--   **Modern Tech Stack**: Built with React, Vite, and Tailwind CSS.
+-   **Modern Tech Stack**: Built with React, TypeScript, Vite, and Tailwind CSS.
 
 ## Getting Started
 
@@ -37,6 +37,12 @@ A high-performance, interactive generative art sandbox built with **React** and 
 
 ```bash
 npm run dev
+```
+
+### Type Checking
+
+```bash
+npm run typecheck
 ```
 
 ### Building for Production

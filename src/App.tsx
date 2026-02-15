@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Settings, Download, X } from 'lucide-react';
 import { Particle } from './Particle';
+import { ParticleParams, Dimensions } from './types';
 
 const App = () => {
-    const canvasRef = useRef(null);
-    const [particles, setParticles] = useState([]);
-    const [showControls, setShowControls] = useState(false);
-    const [params, setParams] = useState({
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [particles, setParticles] = useState<Particle[]>([]);
+    const [showControls, setShowControls] = useState<boolean>(false);
+    const [params, setParams] = useState<ParticleParams>({
         speed: 50,      // 0 - 100
         gravity: 0,     // 0 - 100
         density: 50,    // 10 - 200 (number of particles)
@@ -14,11 +15,16 @@ const App = () => {
         range: 40,      // 20 - 150 (connection distance)
         baseHue: 180,   // 0 - 360
     });
-    const [dims, setDims] = useState({ w: window.innerWidth, h: window.innerHeight });
+    const [dims, setDims] = useState<Dimensions>({ w: window.innerWidth, h: window.innerHeight });
 
     // Store previous dimensions to calculate scale factor
     // Initialize with current window size
-    const prevDimsRef = useRef({ w: window.innerWidth, h: window.innerHeight });
+    const prevDimsRef = useRef<Dimensions>({ w: window.innerWidth, h: window.innerHeight });
+
+    // Refs for animation loop to avoid restarts
+    const paramsRef = useRef<ParticleParams>(params);
+    const particlesRef = useRef<Particle[]>(particles);
+    const timeRef = useRef<number>(0); // Persistent time across re-renders
 
     // Initialize & Manage Particles (Non-destructive)
     useEffect(() => {
@@ -79,7 +85,9 @@ const App = () => {
 
                 // Scale context to match
                 const ctx = canvasRef.current.getContext('2d');
-                ctx.scale(dpr, dpr);
+                if (ctx) {
+                    ctx.scale(dpr, dpr);
+                }
             }
 
             setDims({ w: newW, h: newH });
@@ -90,10 +98,6 @@ const App = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Refs for animation loop to avoid restarts
-    const paramsRef = useRef(params);
-    const particlesRef = useRef(particles);
-    const timeRef = useRef(0); // Persistent time across re-renders
 
     // Update refs when state changes
     useEffect(() => {
@@ -107,8 +111,12 @@ const App = () => {
     // Main Animation Loop
     useEffect(() => {
         const canvas = canvasRef.current;
+        if (!canvas) return;
+
         const ctx = canvas.getContext('2d');
-        let animationFrameId;
+        if (!ctx) return;
+
+        let animationFrameId: number;
 
         const render = () => {
             timeRef.current += 1; // Increment persistent time
@@ -174,12 +182,13 @@ const App = () => {
     }, [dims]); // Only restart if canvas dimensions change significantly
 
     // Handlers
-    const handleParamChange = (key, value) => {
+    const handleParamChange = (key: keyof ParticleParams, value: string) => {
         setParams(prev => ({ ...prev, [key]: parseFloat(value) }));
     };
 
     const downloadWallpaper = () => {
         const canvas = canvasRef.current;
+        if (!canvas) return;
         // Create a temporary link
         const link = document.createElement('a');
         // High quality output
@@ -192,7 +201,6 @@ const App = () => {
 
     return (
         <div className="relative w-full h-screen h-[100svh] overflow-hidden bg-black">
-            {/* The Canvas */}
             {/* The Canvas */}
             <main className="absolute top-0 left-0 w-full h-full pointer-events-none">
                 <canvas
@@ -353,4 +361,3 @@ const App = () => {
 };
 
 export default App;
-

@@ -1,10 +1,28 @@
+import { ParticleParams } from './types';
+
 export class Particle {
-    constructor(w, h, id) {
+    id: number;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    gVy: number;
+    size: number;
+    phase: number;
+
+    constructor(w: number, h: number, id: number) {
         this.id = id;
+        this.x = 0;
+        this.y = 0;
+        this.vx = 0;
+        this.vy = 0;
+        this.gVy = 0;
+        this.size = 0;
+        this.phase = 0;
         this.reset(w, h, true);
     }
 
-    reset(w, h, randomY = false) {
+    reset(w: number, h: number, randomY: boolean = false): void {
         this.x = Math.random() * w;
         this.y = randomY ? Math.random() * h : -20;
 
@@ -22,7 +40,7 @@ export class Particle {
         this.phase = Math.random() * Math.PI * 2;
     }
 
-    update(w, h, params, time) {
+    update(w: number, h: number, params: ParticleParams, time: number): void {
         const speedMultiplier = params.speed / 50;
 
         // 1. Calculate Gravity Component
@@ -36,7 +54,7 @@ export class Particle {
 
         // 2. Calculate Total Velocity
         // Base velocity (floating) scaled by speed param
-        let moveX = this.vx * speedMultiplier;
+        const moveX = this.vx * speedMultiplier;
         let moveY = this.vy * speedMultiplier;
 
         // Add gravity component (also scaled slightly by speed to keep time-scale consistent, or keep independent)
@@ -74,7 +92,8 @@ export class Particle {
             }
         }
     }
-    relocate(w, h, oldW, oldH) {
+
+    relocate(w: number, h: number, oldW: number, oldH: number): void {
         if (oldW === 0 || oldH === 0) return; // Prevent division by zero
 
         // Scale position based on new dimensions
