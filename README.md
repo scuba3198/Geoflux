@@ -6,17 +6,17 @@ A high-performance, interactive generative art sandbox built with **React** and 
 
 ## Features
 
--   **Interactive Particles**: Thousands of particles reacting to physics in real-time.
--   **Customizable Physics**: Adjust gravity, density, flow speed, and connection range.
--   **High DPI Support**: Crystal clear rendering on Retina and 4K displays.
--   **Wallpaper Generator**: Export your creations as high-resolution PNGs.
--   **Modern Tech Stack**: Built with React, TypeScript, Vite, Biome, and Tailwind CSS.
+- **Interactive Particles**: Thousands of particles reacting to physics in real-time.
+- **Customizable Physics**: Adjust gravity, density, flow speed, and connection range.
+- **High DPI Support**: Crystal clear rendering on Retina and 4K displays.
+- **Wallpaper Generator**: Export your creations as high-resolution PNGs.
+- **Modern Tech Stack**: Built with React, TypeScript, Vite, Oxlint, and Tailwind CSS.
 
 ## Getting Started
 
 ### Prerequisites
 
--   Node.js installed on your machine.
+- Node.js installed on your machine.
 
 ### Installation
 
@@ -78,5 +78,3 @@ npx playwright test --ui
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
-

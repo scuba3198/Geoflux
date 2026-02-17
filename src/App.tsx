@@ -216,16 +216,19 @@ const App = () => {
 			</main>
 
 			{/* Header / Brand */}
-			<header
-				onClick={() => window.location.reload()}
-				className="absolute top-6 left-6 select-none z-10 cursor-pointer active:scale-95 transition-transform"
-			>
-				<h1 className="text-2xl sm:text-3xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 opacity-80">
-					GEOFLUX
-				</h1>
-				<p className="text-[10px] sm:text-xs text-gray-400 tracking-widest uppercase mt-1">
-					Generative Sandbox
-				</p>
+			<header className="absolute top-6 left-6 select-none z-10">
+				<button
+					type="button"
+					onClick={() => window.location.reload()}
+					className="text-left active:scale-95 transition-transform outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 rounded-lg p-1"
+				>
+					<h1 className="text-2xl sm:text-3xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 opacity-80">
+						GEOFLUX
+					</h1>
+					<p className="text-[10px] sm:text-xs text-gray-400 tracking-widest uppercase mt-1">
+						Generative Sandbox
+					</p>
+				</button>
 			</header>
 
 			{/* Credit - Subtle watermark in bottom left */}
