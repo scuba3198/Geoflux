@@ -1,7 +1,8 @@
-import { Download, Settings, X } from "lucide-react";
+import { Download, Settings, X, Hand } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Particle } from "./Particle";
 import type { Dimensions, ParticleParams } from "./types";
+import { useHandTracking } from "./hooks/useHandTracking";
 
 const App = () => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -14,6 +15,7 @@ const App = () => {
 		colorSpeed: 20, // 0 - 100 (hue cycle speed)
 		range: 40, // 20 - 150 (connection distance)
 		baseHue: 180, // 0 - 360
+		handForce: 50, // 0 - 100 (camera wind force)
 	});
 	const [dims, setDims] = useState<Dimensions>({
 		w: window.innerWidth,
@@ -31,6 +33,23 @@ const App = () => {
 	const paramsRef = useRef<ParticleParams>(params);
 	const particlesRef = useRef<Particle[]>(particles);
 	const timeRef = useRef<number>(0); // Persistent time across re-renders
+
+	const videoRef = useRef<HTMLVideoElement>(null);
+	const pipCanvasRef = useRef<HTMLCanvasElement>(null);
+	const [trackingEnabled, setTrackingEnabled] = useState(false);
+	const [simulateHand, setSimulateHand] = useState(false);
+	const [trackingSensitivity, setTrackingSensitivity] = useState(30);
+
+	const trackingEnabledRef = useRef(trackingEnabled);
+	const simulateHandRef = useRef(simulateHand);
+
+	const { state: trackingState, handsRef, rawHandsRef, hasHands } = useHandTracking({
+		videoRef,
+		canvasWidth: dims.w,
+		canvasHeight: dims.h,
+		enabled: trackingEnabled,
+		minDetectionConfidence: trackingSensitivity / 100
+	});
 
 	// Initialize & Manage Particles (Non-destructive)
 	useEffect(() => {
@@ -114,6 +133,14 @@ const App = () => {
 		particlesRef.current = particles;
 	}, [particles]);
 
+	useEffect(() => {
+		trackingEnabledRef.current = trackingEnabled;
+	}, [trackingEnabled]);
+
+	useEffect(() => {
+		simulateHandRef.current = simulateHand;
+	}, [simulateHand]);
+
 	// Main Animation Loop
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -142,8 +169,23 @@ const App = () => {
 				time * (currentParams.colorSpeed / 50) + currentParams.baseHue;
 
 			// Update and Draw Particles
+			let currentHands = handsRef ? [...handsRef.current] : [];
+
+			// Inject simulated hand if enabled
+			if (simulateHandRef.current) {
+				const orbit = time * 0.05;
+				currentHands.push({
+					x: w / 2 + Math.cos(orbit) * (w / 4),
+					y: h / 2 + Math.sin(orbit) * (h / 4),
+					vx: -Math.sin(orbit) * 2,
+					vy: Math.cos(orbit) * 2,
+					active: true,
+					timestamp: Date.now()
+				});
+			}
+
 			currentParticles.forEach((p) => {
-				p.update(w, h, currentParams, time);
+				p.update(w, h, currentParams, time, currentHands);
 
 				// Draw Point
 				ctx.beginPath();
@@ -179,6 +221,48 @@ const App = () => {
 						ctx.lineTo(p2.x, p2.y);
 						ctx.stroke();
 					}
+				}
+			}
+
+			// Draw Debug Hand Points (Circles where the tracking logic thinks hands are)
+			if (trackingEnabledRef.current && currentHands.length > 0) {
+				currentHands.forEach(hand => {
+					if (!hand.active) return;
+					ctx.beginPath();
+					ctx.arc(hand.x, hand.y, 10, 0, Math.PI * 2);
+					ctx.strokeStyle = "rgba(0, 255, 255, 0.8)";
+					ctx.lineWidth = 2;
+					ctx.stroke();
+
+					// Directional indicator
+					ctx.beginPath();
+					ctx.moveTo(hand.x, hand.y);
+					ctx.lineTo(hand.x + hand.vx * 50, hand.y + hand.vy * 50);
+					ctx.strokeStyle = "rgba(0, 255, 255, 0.4)";
+					ctx.stroke();
+				});
+			}
+
+			// Draw Landmarks on PIP canvas for visual debugging
+			if (pipCanvasRef.current && rawHandsRef?.current && trackingEnabledRef.current) {
+				const pipCtx = pipCanvasRef.current.getContext('2d');
+				if (pipCtx) {
+					pipCtx.clearRect(0, 0, pipCanvasRef.current.width, pipCanvasRef.current.height);
+					rawHandsRef.current.forEach((landmarks: any) => {
+						pipCtx.fillStyle = "#00ffff";
+						landmarks.forEach((lm: any) => {
+							// In PIP video is mirrored visually via CSS scale-x-[-1]
+							// Landmarks from MediaPipe are already correctly aligned with the video's contents
+							// If we draw on a non-mirrored canvas over a mirrored video, we need to match.
+							// But the canvas itself is NOT mirrored via CSS.
+							// So we mirror the drawing.
+							const px = (1 - lm.x) * pipCanvasRef.current!.width;
+							const py = lm.y * pipCanvasRef.current!.height;
+							pipCtx.beginPath();
+							pipCtx.arc(px, py, 2, 0, Math.PI * 2);
+							pipCtx.fill();
+						});
+					});
 				}
 			}
 
@@ -250,6 +334,31 @@ const App = () => {
 				</button>
 			)}
 
+			{/* PIP WebCam Overlay (Mirrored visual) - Moved to left to avoid overlap */}
+			<div className={`absolute bottom-[max(2rem,env(safe-area-inset-bottom))] left-6 z-10 w-48 h-36 bg-black/60 overflow-hidden rounded-xl border border-white/20 glass-panel shadow-2xl transition-all duration-300 ${trackingEnabled ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}>
+				<video ref={videoRef} className="w-full h-full object-cover scale-x-[-1] opacity-90" autoPlay playsInline muted />
+				<canvas
+					ref={pipCanvasRef}
+					width={192}
+					height={144}
+					className="absolute inset-0 w-full h-full pointer-events-none"
+				/>
+				<div className="absolute top-2 left-2 text-[10px] uppercase tracking-wider font-bold bg-black/60 px-2 py-1 rounded text-white flex items-center gap-1">
+					<span className={`w-2 h-2 rounded-full ${trackingState === 'TRACKING' ? 'bg-green-500 animate-pulse' : trackingState === 'ERROR' ? 'bg-red-500' : 'bg-yellow-500'}`}></span>
+					{trackingState}
+				</div>
+				{trackingState === 'TRACKING' && !hasHands && !simulateHand && (
+					<div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none">
+						<p className="text-[10px] text-white/80 font-bold bg-black/40 px-2 py-1 rounded">No hand detected</p>
+					</div>
+				)}
+				{trackingState === 'ERROR' && (
+					<div className="absolute inset-0 flex items-center justify-center bg-black/80 p-4 text-center">
+						<p className="text-[10px] text-red-400 font-medium">Camera/Model Failed to Load</p>
+					</div>
+				)}
+			</div>
+
 			{/* Control Panel */}
 			<aside
 				className={`absolute top-0 right-0 h-full w-full sm:w-80 glass-panel p-6 transform transition-transform duration-300 ease-in-out z-20 flex flex-col ${showControls ? "translate-x-0 opacity-100 pointer-events-auto" : "translate-x-full opacity-0 pointer-events-none"}`}
@@ -269,6 +378,66 @@ const App = () => {
 				</div>
 
 				<div className="flex-1 overflow-y-auto hide-scrollbar space-y-8 pr-2">
+					{/* Tracking Toggle */}
+					<div className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-3">
+						<div className="flex items-center justify-between">
+							<span className="text-sm font-medium text-white flex items-center gap-2">
+								<Hand size={16} className="text-cyan-400" /> Hand Control
+							</span>
+							<button
+								onClick={() => setTrackingEnabled(!trackingEnabled)}
+								className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${trackingEnabled ? 'bg-cyan-500' : 'bg-gray-600'}`}
+							>
+								<span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${trackingEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+							</button>
+						</div>
+
+						{trackingEnabled && (
+							<div className="space-y-4 mt-4">
+								<div className="space-y-2">
+									<div className="flex justify-between text-xs">
+										<label htmlFor="hand-force-input" className="text-cyan-300">Force</label>
+										<span className="text-gray-400">{params.handForce}%</span>
+									</div>
+									<input
+										id="hand-force-input"
+										type="range"
+										min="0"
+										max="100"
+										step="1"
+										value={params.handForce}
+										onChange={(e) => handleParamChange("handForce", e.target.value)}
+									/>
+								</div>
+
+								<div className="space-y-2">
+									<div className="flex justify-between text-xs">
+										<label htmlFor="hand-sensitivity-input" className="text-cyan-300">Sensitivity</label>
+										<span className="text-gray-400">{trackingSensitivity}%</span>
+									</div>
+									<input
+										id="hand-sensitivity-input"
+										type="range"
+										min="5"
+										max="80"
+										step="1"
+										value={trackingSensitivity}
+										onChange={(e) => setTrackingSensitivity(parseInt(e.target.value))}
+									/>
+									<p className="text-[9px] text-gray-500 leading-tight">Lowering sensitivity helps in dark rooms or with older webcams.</p>
+								</div>
+
+								<div className="flex items-center justify-between border-t border-white/5 pt-3">
+									<span className="text-[10px] uppercase tracking-wider text-gray-400">Simulate Movement</span>
+									<button
+										onClick={() => setSimulateHand(!simulateHand)}
+										className={`h-4 w-4 rounded border ${simulateHand ? 'bg-cyan-500 border-cyan-500' : 'border-gray-500'}`}
+									/>
+								</div>
+							</div>
+						)}
+					</div>
+
 					{/* Sliders */}
 					<div className="space-y-4">
 						<div className="space-y-2">

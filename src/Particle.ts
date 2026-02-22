@@ -1,4 +1,4 @@
-import type { ParticleParams } from "./types";
+import type { HandVector, ParticleParams } from "./types";
 
 export class Particle {
 	id: number;
@@ -40,7 +40,7 @@ export class Particle {
 		this.phase = Math.random() * Math.PI * 2;
 	}
 
-	update(w: number, h: number, params: ParticleParams, time: number): void {
+	update(w: number, h: number, params: ParticleParams, time: number, hands: HandVector[] = []): void {
 		const speedMultiplier = params.speed / 50;
 
 		// 1. Calculate Gravity Component
@@ -54,21 +54,56 @@ export class Particle {
 
 		// 2. Calculate Total Velocity
 		// Base velocity (floating) scaled by speed param
-		const moveX = this.vx * speedMultiplier;
+		let moveX = this.vx * speedMultiplier;
 		let moveY = this.vy * speedMultiplier;
 
 		// Add gravity component (also scaled slightly by speed to keep time-scale consistent, or keep independent)
 		// Let's keep gravity independent of flow speed to make it feel physically weighty
 		moveY += this.gVy;
 
-		// 3. Apply position update
+		// 3. Apply Hand Force (Wind / Drag)
+		if (params.handForce > 0 && hands.length > 0) {
+			const effectRadius = params.range * 12; // Massive radius for easier targeting
+
+			for (const hand of hands) {
+				if (!hand.active) continue;
+
+				const dx = this.x - hand.x;
+				const dy = this.y - hand.y;
+				const dist = Math.sqrt(dx * dx + dy * dy);
+
+				const safeDist = Math.max(dist, 5);
+
+				if (safeDist < effectRadius) {
+					// Quadratic falloff for smoother boundary transitions
+					const forceBase = 1 - safeDist / effectRadius;
+					const force = forceBase * forceBase * (params.handForce / 50);
+
+					// Viscous Drag: Particles follow the hand's vector
+					// We use a high multiplier but don't let it exceed a reasonable "touch" speed
+					const handInfluence = 20;
+					const targetVx = hand.vx * handInfluence;
+					const targetVy = hand.vy * handInfluence;
+
+					// Blend current velocity with hand velocity (Lerp)
+					moveX += (targetVx - moveX) * force * 0.2;
+					moveY += (targetVy - moveY) * force * 0.2;
+
+					// Slight outward pressure (Physical "Push")
+					moveX += (dx / safeDist) * force * 5;
+					moveY += (dy / safeDist) * force * 5;
+				}
+			}
+		}
+
+		// 4. Apply position update
 		// Add wiggle
 		const wiggle = Math.sin(time * 0.002 + this.phase) * (params.speed / 100);
 
 		this.x += moveX + wiggle;
 		this.y += moveY;
 
-		// 4. Boundary Checks
+		// 5. Boundary Checks
 		if (this.x < 0 || this.x > w || this.y > h + 20) {
 			// Wrap around or reset
 			if (params.gravity > 10) {
